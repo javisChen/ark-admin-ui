@@ -41,6 +41,8 @@ const transform: AxiosTransform = {
       isReturnNativeResponse,
     } = options;
 
+    console.log('res', res)
+
     // 是否返回原生响应头 比如：需要获取响应头时使用该属性
     if (isReturnNativeResponse) {
       return res;
@@ -51,17 +53,20 @@ const transform: AxiosTransform = {
       return res.data;
     }
 
-    const { data } = res;
+
+    // const { data } = res;
+    console.log('d', res)
+    console.log('d', res.data)
 
     const $dialog = window['$dialog'];
     const $message = window['$message'];
 
-    if (!data) {
+    if (!res.data) {
       // return '[HTTP] Request has no return value';
       throw new Error('请求出错，请稍候重试');
     }
     //  这里 code，result，message为 后台统一的字段，需要修改为项目自己的接口返回格式
-    const { code, result, message } = data;
+    const { code, data, msg } = res.data;
     // 请求成功
     const hasSuccess = data && Reflect.has(data, 'code') && code === ResultEnum.SUCCESS;
     // 是否显示提示信息
@@ -70,16 +75,16 @@ const transform: AxiosTransform = {
         // 是否显示自定义信息提示
         $dialog.success({
           type: 'success',
-          content: successMessageText || message || '操作成功！',
+          content: successMessageText || msg || '操作成功！',
         });
       } else if (!hasSuccess && (errorMessageText || isShowErrorMessage)) {
         // 是否显示自定义信息提示
-        $message.error(message || errorMessageText || '操作失败！');
+        $message.error(msg || errorMessageText || '操作失败！');
       } else if (!hasSuccess && options.errorMessageMode === 'modal') {
         // errorMessageMode=‘custom-modal’的时候会显示modal错误弹窗，而不是消息提示，用于一些比较重要的错误
         $dialog.info({
           title: '提示',
-          content: message,
+          content: msg,
           positiveText: '确定',
           onPositiveClick: () => {},
         });
@@ -88,10 +93,11 @@ const transform: AxiosTransform = {
 
     // 接口请求成功，直接返回结果
     if (code === ResultEnum.SUCCESS) {
-      return result;
+      console.log('return', data)
+      return data;
     }
     // 接口请求错误，统一提示错误信息 这里逻辑可以根据项目进行修改
-    let errorMsg = message;
+    let errorMsg = msg;
     switch (code) {
       // 请求失败
       case ResultEnum.ERROR:
@@ -196,7 +202,7 @@ const transform: AxiosTransform = {
     const { response, code, message } = error || {};
     // TODO 此处要根据后端接口返回格式修改
     const msg: string =
-      response && response.data && response.data.message ? response.data.message : '';
+      response && response.data && response.data.msg ? response.data.msg : '';
     const err: string = error.toString();
     try {
       if (code === 'ECONNABORTED' && message.indexOf('timeout') !== -1) {
@@ -236,7 +242,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
     deepMerge(
       {
         timeout: 10 * 1000,
-        authenticationScheme: '',
+        authenticationScheme: 'Bearer',
         // 接口前缀
         prefixUrl: urlPrefix,
         headers: { 'Content-Type': ContentTypeEnum.JSON },

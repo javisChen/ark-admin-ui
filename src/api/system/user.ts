@@ -1,66 +1,37 @@
 import { http } from '@/utils/http/axios';
 
-export interface BasicResponseModel<T = any> {
-  code: number;
-  message: string;
-  result: T;
+const Base: any = {
+  serviceName: '/iam'
 }
 
-export interface BasicPageParams {
-  pageNumber: number;
-  pageSize: number;
-  total: number;
+const api = {
+  users: Base.serviceName + '/v1/users/pages',
+  user: Base.serviceName + '/v1/users/details',
+  createUser: Base.serviceName + '/v1/users/create',
+  updateUser: Base.serviceName + '/v1/users/update',
+  userInfo: Base.serviceName + '/v1/users/self',
+  userSelfMenus: Base.serviceName + '/v2/users/self/menus',
+  userPermissionElements: Base.serviceName + '/v1/users/self/elements',
 }
 
 /**
- * @description: 获取用户信息
+ * @description: 根据用户id获取用户菜单
  */
-export function getUserInfo() {
+export function adminMenus() {
   return http.request({
-    url: '/admin_info',
-    method: 'get',
+    url: api.userSelfMenus,
+    method: 'GET',
   });
 }
 
 /**
- * @description: 用户登录
+ * 获取tree菜单列表
+ * @param params
  */
-export function login(params) {
-  return http.request<BasicResponseModel>(
-    {
-      url: '/login',
-      method: 'POST',
-      params,
-    },
-    {
-      isTransformResponse: false,
-    }
-  );
-}
-
-/**
- * @description: 用户修改密码
- */
-export function changePassword(params, uid) {
-  return http.request(
-    {
-      url: `/user/u${uid}/changepw`,
-      method: 'POST',
-      params,
-    },
-    {
-      isTransformResponse: false,
-    }
-  );
-}
-
-/**
- * @description: 用户登出
- */
-export function logout(params) {
+export function getMenuList(params?) {
   return http.request({
-    url: '/login/logout',
-    method: 'POST',
+    url: '/menu/list',
+    method: 'GET',
     params,
   });
 }

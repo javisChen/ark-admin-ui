@@ -2,7 +2,7 @@ import { toRaw, unref } from 'vue';
 import { defineStore } from 'pinia';
 import { RouteRecordRaw } from 'vue-router';
 import { store } from '@/store';
-import { asyncRoutes, constantRouter } from '@/router/index';
+import { asyncRoutes, constantRouter } from '@/router';
 import { generateDynamicRoutes } from '@/router/generator';
 import { useProjectSetting } from '@/hooks/setting/useProjectSetting';
 
@@ -15,7 +15,7 @@ interface TreeHelperConfig {
 const DEFAULT_CONFIG: TreeHelperConfig = {
   id: 'id',
   children: 'children',
-  pid: 'pid',
+  pid: 'parentId',
 };
 
 const getConfig = (config: Partial<TreeHelperConfig>) => Object.assign({}, DEFAULT_CONFIG, config);
@@ -87,7 +87,7 @@ export const useAsyncRouteStore = defineStore({
       this.keepAliveComponents = compNames;
     },
     async generateRoutes(data) {
-      let accessedRouters;
+      let accessedRouters : any[] = [];
       const permissionsList = data.permissions ?? [];
       const routeFilter = (route) => {
         const { meta } = route;
@@ -100,6 +100,9 @@ export const useAsyncRouteStore = defineStore({
         // 动态获取菜单
         try {
           accessedRouters = await generateDynamicRoutes();
+          // todo 到时删掉下面两行
+          var items = filter(asyncRoutes, routeFilter);
+          accessedRouters=  accessedRouters.concat(items)
         } catch (error) {
           console.log(error);
         }
@@ -111,7 +114,6 @@ export const useAsyncRouteStore = defineStore({
           console.log(error);
         }
       }
-      accessedRouters = accessedRouters.filter(routeFilter);
       this.setRouters(accessedRouters);
       this.setMenus(accessedRouters);
       return toRaw(accessedRouters);
