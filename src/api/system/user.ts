@@ -1,4 +1,4 @@
-import { http } from '@/utils/http/axios';
+import {del, get, http, post, put} from '@/utils/http/axios';
 
 const Base: any = {
   serviceName: '/iam'
@@ -35,3 +35,22 @@ export function getMenuList(params?) {
     params,
   });
 }
+
+
+export default api
+
+export const getUsers = (params) => get({url: api.users, params})
+
+export const getUser = (params) => get({url: api.user, params})
+
+export const deleteUser = (params) => del({url: api.user, params})
+
+export const getUserInfo = (params) => get({url: api.userInfo, params})
+
+export const getUserRoutes = (params) => get({url: api.userSelfMenus, params})
+
+export const getUserPageElementPermissions = (params) => get({url: api.userPermissionElements, params})
+
+export const addUser = (data) => post({url: api.createUser, data})
+
+export const updateUser = (data) => put({url: api.updateUser, data})

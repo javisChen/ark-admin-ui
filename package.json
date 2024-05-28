@@ -38,6 +38,7 @@
     "echarts": "^5.4.3",
     "element-resize-detector": "^1.2.4",
     "lodash-es": "^4.17.21",
+    "md5": "^2.2.1",
     "mitt": "^3.0.1",
     "mockjs": "^1.1.0",
     "naive-ui": "^2.34.4",
@@ -47,7 +48,7 @@
     "vue": "^3.3.4",
     "vue-router": "^4.2.4",
     "vue-types": "^4.2.1",
-    "md5": "^2.2.1"
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.7.0",
