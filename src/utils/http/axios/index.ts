@@ -41,8 +41,6 @@ const transform: AxiosTransform = {
       isReturnNativeResponse,
     } = options;
 
-    console.log('res', res)
-
     // 是否返回原生响应头 比如：需要获取响应头时使用该属性
     if (isReturnNativeResponse) {
       return res;
@@ -52,11 +50,6 @@ const transform: AxiosTransform = {
     if (!isTransformResponse) {
       return res.data;
     }
-
-
-    // const { data } = res;
-    console.log('d', res)
-    console.log('d', res.data)
 
     const $dialog = window['$dialog'];
     const $message = window['$message'];
@@ -93,7 +86,6 @@ const transform: AxiosTransform = {
 
     // 接口请求成功，直接返回结果
     if (code === ResultEnum.SUCCESS) {
-      console.log('return', data)
       return data;
     }
     // 接口请求错误，统一提示错误信息 这里逻辑可以根据项目进行修改

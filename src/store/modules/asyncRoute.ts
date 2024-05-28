@@ -101,8 +101,8 @@ export const useAsyncRouteStore = defineStore({
         try {
           accessedRouters = await generateDynamicRoutes();
           // todo 到时删掉下面两行
-          var items = filter(asyncRoutes, routeFilter);
-          accessedRouters=  accessedRouters.concat(items)
+          // var items = filter(asyncRoutes, routeFilter);
+          // accessedRouters=  accessedRouters.concat(items)
         } catch (error) {
           console.log(error);
         }

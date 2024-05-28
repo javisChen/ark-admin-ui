@@ -9,6 +9,7 @@ const Iframe = () => import('@/views/iframe/index.vue');
 const LayoutMap = new Map<string, () => Promise<typeof import('*.vue')>>();
 
 LayoutMap.set('LAYOUT', Layout);
+LayoutMap.set('RouteView', Layout);
 LayoutMap.set('IFRAME', Iframe);
 
 /**
@@ -22,6 +23,7 @@ export const generateRoutes = (routerMap, parent?): any[] => {
     const currentRoute: any = {
       // 路由地址 动态拼接生成如 /dashboard/workplace
       path: `${(parent && parent.path) ?? ''}/${item.path}`,
+      // path: `${item.path}`,
       // 路由名称，建议唯一
       name: item.name ?? '',
       // 该路由对应页面的 组件
