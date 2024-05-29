@@ -243,11 +243,10 @@ function handleReset(values: Recordable) {
 const schemas: FormSchema[] = [
   {
     field: 'name',
-    labelMessage: '这是一个提示',
     component: 'NInput',
     label: '用户名',
     componentProps: {
-      placeholder: '请输入姓名',
+      placeholder: '',
       onInput: (e: any) => {
         console.log(e);
       },
@@ -258,7 +257,7 @@ const schemas: FormSchema[] = [
     component: 'NInputNumber',
     label: '手机',
     componentProps: {
-      placeholder: '请输入手机号码',
+      placeholder: '',
       showButton: false,
       onInput: (e: any) => {
         console.log(e);
