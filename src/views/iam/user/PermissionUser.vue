@@ -1,113 +1,162 @@
 <template>
-  <div>hello</div>
-<!--  <page-header-wrapper>-->
-<!--    <a-card :bordered="false">-->
-<!--      <div class="table-page-search-wrapper">-->
-<!--        <a-form layout="inline">-->
-<!--          <a-row :gutter="48">-->
-<!--            <a-col :md="8" :sm="24">-->
-<!--              <a-form-item label="用户名称">-->
-<!--                <a-input v-model="queryParam.name" placeholder=""/>-->
-<!--              </a-form-item>-->
-<!--            </a-col>-->
-<!--            <a-col :md="8" :sm="24">-->
-<!--              <a-form-item label="使用状态">-->
-<!--                <a-select v-model="queryParam.status" placeholder="请选择" :default-value="0"-->
-<!--                          @change="handleQueryStatusChange">-->
-<!--                  <a-select-option v-for="(value, key) in routeStatusDictionary"-->
-<!--                                   :key="key"-->
-<!--                                   :value="key">-->
-<!--                    {{ value }}-->
-<!--                  </a-select-option>-->
-<!--                </a-select>-->
-<!--              </a-form-item>-->
-<!--            </a-col>-->
-<!--            <a-col :md="!advanced && 8 || 24" :sm="24">-->
-<!--                          <span class="table-page-search-submitButtons"-->
-<!--                                :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">-->
-<!--                            <a-button type="primary" @click="loadTableData">查询</a-button>-->
-<!--                            <a-button style="margin-left: 8px" @click="resetQueryParams">重置</a-button>-->
-<!--                          </span>-->
-<!--            </a-col>-->
-<!--          </a-row>-->
-<!--        </a-form>-->
-<!--      </div>-->
+  <n-card title="用户列表" :bordered="false" class="proCard">
 
-<!--      <div class="table-operator">-->
-<!--        <a-button type="primary" icon="plus" @click="showUserForm">新建用户</a-button>-->
-<!--      </div>-->
+    <BasicForm @register="register" @submit="handleSubmit" @reset="handleReset">
+      <template #statusSlot="{ model, field }">
+        <n-input v-model:value="model[field]"/>
+      </template>
+    </BasicForm>
 
-<!--      <a-table-->
-<!--        v-if="tableData && tableData.length > 0"-->
-<!--        bordered-->
-<!--        @change="handleTableChange"-->
-<!--        :pagination="pagination"-->
-<!--        :loading="tableLoading"-->
-<!--        :defaultExpandAllRows="defaultExpandAllRows"-->
-<!--        :size="'small'"-->
-<!--        :row-key="rowKey"-->
-<!--        :columns="columns"-->
-<!--        :data-source="tableData">-->
+    <BasicTable
+      title=""
+      titleTooltip=""
+      :columns="columns"
+      :request="loadDataTable"
+      :row-key="(row) => row.id"
+      ref="actionRef"
+      :actionColumn="actionColumn"
+      :scroll-x="1360"
+      @update:checked-row-keys="onCheckedRow"
+    >
 
-<!--        <template slot="roles" slot-scope="text, record">-->
-<!--          <a-tag color="blue" v-for="item in record.roles" :key="item">{{ item }}</a-tag>-->
-<!--        </template>-->
+      <template #tableTitle>
+      </template>
 
-<!--        <template slot="userGroups" slot-scope="text, record">-->
-<!--          <a-tag color="blue" v-for="item in record.userGroups" :key="item">{{ item }}</a-tag>-->
-<!--        </template>-->
+      <template #toolbar>
+        <n-button type="primary" @click="openCreateDrawer">
+          <template #icon>
+            <n-icon>
+              <PlusOutlined />
+            </n-icon>
+          </template>
+          新建用户
+        </n-button>
+      </template>
 
-<!--        <template slot="status" slot-scope="text, record">-->
-<!--          <a-dropdown :trigger="['click']">-->
-<!--            <a-menu slot="overlay" @click="routeStatusChange($event, record)">-->
-<!--              <a-menu-item v-for="(value, key) in routeStatusDictionary" :key="key">-->
-<!--                {{ value }}-->
-<!--              </a-menu-item>-->
-<!--            </a-menu>-->
-<!--            <a-button-->
-<!--              :style="record.status === 1 ? {'background-color': '#52c41a',border: 'none', 'color': 'white'}: {}"-->
-<!--              shape="round" size="small" :type="record.status !== 1 ? 'danger' : ''">-->
-<!--              {{ getStatusDesc(record.status) }}-->
-<!--              <a-icon type="down"/>-->
-<!--            </a-button>-->
-<!--          </a-dropdown>-->
-<!--        </template>-->
+      <!--      <template #toolbar>-->
+      <!--        <n-button type="primary" @click="reloadTable">刷新数据</n-button>-->
+      <!--      </template>-->
+    </BasicTable>
 
-<!--        <template slot="action" slot-scope="text, record">-->
-<!--          <k-tooltip-button title="编辑" @click="handleEdit(record)" icon="edit"/>&nbsp;-->
-<!--          <k-tooltip-button title="删除" @click="handleDelete(record)" type="danger" icon="delete"/>-->
-<!--        </template>-->
-<!--      </a-table>-->
-<!--      <a-empty v-else/>-->
+    <user-create-drawer ref="createDrawerRef" title="新增用户"/>
+  </n-card>
+  <!--  <page-header-wrapper>-->
+  <!--    <a-card :bordered="false">-->
+  <!--      <div class="table-page-search-wrapper">-->
+  <!--        <a-form layout="inline">-->
+  <!--          <a-row :gutter="48">-->
+  <!--            <a-col :md="8" :sm="24">-->
+  <!--              <a-form-item label="用户名称">-->
+  <!--                <a-input v-model="queryParam.name" placeholder=""/>-->
+  <!--              </a-form-item>-->
+  <!--            </a-col>-->
+  <!--            <a-col :md="8" :sm="24">-->
+  <!--              <a-form-item label="使用状态">-->
+  <!--                <a-select v-model="queryParam.status" placeholder="请选择" :default-value="0"-->
+  <!--                          @change="handleQueryStatusChange">-->
+  <!--                  <a-select-option v-for="(value, key) in routeStatusDictionary"-->
+  <!--                                   :key="key"-->
+  <!--                                   :value="key">-->
+  <!--                    {{ value }}-->
+  <!--                  </a-select-option>-->
+  <!--                </a-select>-->
+  <!--              </a-form-item>-->
+  <!--            </a-col>-->
+  <!--            <a-col :md="!advanced && 8 || 24" :sm="24">-->
+  <!--                          <span class="table-page-search-submitButtons"-->
+  <!--                                :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">-->
+  <!--                            <a-button type="primary" @click="loadTableData">查询</a-button>-->
+  <!--                            <a-button style="margin-left: 8px" @click="resetQueryParams">重置</a-button>-->
+  <!--                          </span>-->
+  <!--            </a-col>-->
+  <!--          </a-row>-->
+  <!--        </a-form>-->
+  <!--      </div>-->
 
-<!--      &lt;!&ndash; 创建路由信息表单&ndash;&gt;-->
-<!--      <permission-user-form ref="userForm"-->
-<!--                            @success="handleFormOnSuccess"-->
-<!--                            @cancel="handleEditFormCancel"/>-->
+  <!--      <div class="table-operator">-->
+  <!--        <a-button type="primary" icon="plus" @click="showUserForm">新建用户</a-button>-->
+  <!--      </div>-->
 
-<!--    </a-card>-->
+  <!--      <a-table-->
+  <!--        v-if="tableData && tableData.length > 0"-->
+  <!--        bordered-->
+  <!--        @change="handleTableChange"-->
+  <!--        :pagination="pagination"-->
+  <!--        :loading="tableLoading"-->
+  <!--        :defaultExpandAllRows="defaultExpandAllRows"-->
+  <!--        :size="'small'"-->
+  <!--        :row-key="rowKey"-->
+  <!--        :columns="columns"-->
+  <!--        :data-source="tableData">-->
 
-<!--  </page-header-wrapper>-->
+  <!--        <template slot="roles" slot-scope="text, record">-->
+  <!--          <a-tag color="blue" v-for="item in record.roles" :key="item">{{ item }}</a-tag>-->
+  <!--        </template>-->
+
+  <!--        <template slot="userGroups" slot-scope="text, record">-->
+  <!--          <a-tag color="blue" v-for="item in record.userGroups" :key="item">{{ item }}</a-tag>-->
+  <!--        </template>-->
+
+  <!--        <template slot="status" slot-scope="text, record">-->
+  <!--          <a-dropdown :trigger="['click']">-->
+  <!--            <a-menu slot="overlay" @click="routeStatusChange($event, record)">-->
+  <!--              <a-menu-item v-for="(value, key) in routeStatusDictionary" :key="key">-->
+  <!--                {{ value }}-->
+  <!--              </a-menu-item>-->
+  <!--            </a-menu>-->
+  <!--            <a-button-->
+  <!--              :style="record.status === 1 ? {'background-color': '#52c41a',border: 'none', 'color': 'white'}: {}"-->
+  <!--              shape="round" size="small" :type="record.status !== 1 ? 'danger' : ''">-->
+  <!--              {{ getStatusDesc(record.status) }}-->
+  <!--              <a-icon type="down"/>-->
+  <!--            </a-button>-->
+  <!--          </a-dropdown>-->
+  <!--        </template>-->
+
+  <!--        <template slot="action" slot-scope="text, record">-->
+  <!--          <k-tooltip-button title="编辑" @click="handleEdit(record)" icon="edit"/>&nbsp;-->
+  <!--          <k-tooltip-button title="删除" @click="handleDelete(record)" type="danger" icon="delete"/>-->
+  <!--        </template>-->
+  <!--      </a-table>-->
+  <!--      <a-empty v-else/>-->
+
+  <!--      &lt;!&ndash; 创建路由信息表单&ndash;&gt;-->
+  <!--      <permission-user-form ref="userForm"-->
+  <!--                            @success="handleFormOnSuccess"-->
+  <!--                            @cancel="handleEditFormCancel"/>-->
+
+  <!--    </a-card>-->
+
+  <!--  </page-header-wrapper>-->
 
 </template>
 
 
-<script lang="ts" setup>
-import { reactive, ref, h } from 'vue';
-import { BasicTable, TableAction } from '@/components/Table';
-import { getUsers } from '@/api/system/user';
-import { columns } from './basicColumns';
-import { useDialog, useMessage } from 'naive-ui';
-import { DeleteOutlined, EditOutlined } from '@vicons/antd';
+<script lang="tsx" setup>
+import {reactive, ref, h} from 'vue';
+import {BasicTable, TableAction} from '@/components/Table';
+import {getUsers} from '@/api/system/user';
+import {columns} from './basicColumns';
+import {useDialog, useMessage} from 'naive-ui';
+import {DeleteOutlined, EditOutlined, PlusOutlined} from '@vicons/antd';
+import {BasicForm, FormSchema, useForm} from "@/components/Form";
+import UserCreateDrawer from "@/views/iam/user/components/UserCreateDrawer.vue";
 
 const message = useMessage();
 const dialog = useDialog();
 const actionRef = ref();
+const createDrawerRef = ref();
 
 const params = reactive({
-  pageSize: 5,
-  name: 'xiaoMa',
+  size: 5,
+  username: '',
 });
+
+function openCreateDrawer() {
+  const {openDrawer} = createDrawerRef.value;
+  openDrawer();
+}
+
 
 const actionColumn = reactive({
   width: 150,
@@ -126,6 +175,16 @@ const actionColumn = reactive({
 function createActions(record) {
   return [
     {
+      label: '编辑',
+      type: 'primary',
+      icon: EditOutlined,
+      onClick: handleEdit.bind(null, record),
+      ifShow: () => {
+        return true;
+      },
+      // auth: ['basic_list'],
+    },
+    {
       label: '删除',
       type: 'error',
       // 配置 color 会覆盖 type
@@ -137,23 +196,13 @@ function createActions(record) {
         return true;
       },
       // 根据权限控制是否显示: 有权限，会显示，支持多个
-      auth: ['basic_list'],
-    },
-    {
-      label: '编辑',
-      type: 'primary',
-      icon: EditOutlined,
-      onClick: handleEdit.bind(null, record),
-      ifShow: () => {
-        return true;
-      },
-      auth: ['basic_list'],
-    },
+      // auth: ['basic_list'],
+    }
   ];
 }
 
 const loadDataTable = async (res) => {
-  return await getTableList({ ...params, ...res });
+  return await getUsers({...params, ...res});
 };
 
 function onCheckedRow(rowKeys) {
@@ -165,7 +214,6 @@ function reloadTable() {
 }
 
 function handleDelete(record) {
-  console.log(record);
   dialog.info({
     title: '提示',
     content: `您想删除${record.name}`,
@@ -174,169 +222,213 @@ function handleDelete(record) {
     onPositiveClick: () => {
       message.success('删除成功');
     },
-    onNegativeClick: () => {},
+    onNegativeClick: () => {
+    },
   });
 }
 
 function handleEdit(record) {
-  console.log(record);
   message.success('您点击了编辑按钮');
 }
+
+function handleSubmit(values: Recordable) {
+  console.log(values);
+  reloadTable();
+}
+
+function handleReset(values: Recordable) {
+  console.log(values);
+}
+
+const schemas: FormSchema[] = [
+  {
+    field: 'name',
+    labelMessage: '这是一个提示',
+    component: 'NInput',
+    label: '用户名',
+    componentProps: {
+      placeholder: '请输入姓名',
+      onInput: (e: any) => {
+        console.log(e);
+      },
+    },
+  },
+  {
+    field: 'mobile',
+    component: 'NInputNumber',
+    label: '手机',
+    componentProps: {
+      placeholder: '请输入手机号码',
+      showButton: false,
+      onInput: (e: any) => {
+        console.log(e);
+      },
+    }
+  }
+]
+
+
+const [register, {getFieldsValue}] = useForm({
+  gridProps: {cols: '1 s:1 m:2 l:3 xl:4 2xl:4'},
+  labelWidth: 80,
+  schemas,
+});
+
 </script>
 
 
-<script>
+<!--<script>-->
 
-// import {deleteUser, getUsers, getUser} from '@/api/iam/user-api'
-// import PermissionUserForm from "./components/PermissionUserForm.vue";
+<!-- import {deleteUser, getUsers, getUser} from '@/api/iam/user-api'-->
+<!-- import PermissionUserForm from "./components/PermissionUserForm.vue";-->
 
 
-// const routeStatusDictionary = {
-//   1: '已启用',
-//   2: '已禁用'
-// }
-//
-// const pagination = {
-//   showSizeChanger: true,
-//   position: 'bottom',
-//   size: 'default',
-//   showQuickJumper: true,
-//   pageSizeOptions: ['15', '25', '35', '50'],
-//   defaultCurrent: 1,
-//   defaultPageSize: 15,
-//   total: 0
-// }
-//
-// const queryParam = {
-//   current: 1,
-//   size: 15,
-// }
-//
-// export default {
-//   name: 'PermissionRoute',
-//   components: {
-//     PermissionUserForm
-//   },
-//   data() {
-//     return {
-//       pagination,
-//       defaultExpandAllRows: false,
-//       tableLoading: false,
-//       advanced: false,
-//       queryParam: {...queryParam},
-//       tableData: [],
-//       columns: [
-//         {
-//           title: '用户名称',
-//           dataIndex: 'username',
-//           width: 50
-//         },
-//         {
-//           title: '手机号码',
-//           dataIndex: 'mobile',
-//           width: 50,
-//           customRender: (text, row, index) => {
-//             return text || '-'
-//           },
-//         },
-//         {
-//           title: '角色',
-//           dataIndex: 'roles',
-//           width: 100,
-//           align: 'left',
-//           scopedSlots: {customRender: 'roles'},
-//         },
-//         {
-//           title: '所属用户组',
-//           dataIndex: 'userGroups',
-//           align: 'left',
-//           width: 100,
-//           scopedSlots: {customRender: 'userGroups'},
-//         },
-//         {
-//           title: '状态',
-//           dataIndex: 'status',
-//           width: 10,
-//           align: "center",
-//           scopedSlots: {customRender: 'status'},
-//         },
-//         {
-//           title: '操作',
-//           width: 50,
-//           align: 'center',
-//           scopedSlots: {customRender: 'action'},
-//         },
-//       ],
-//       selectedRoute: {},
-//       routeStatusDictionary,
-//       userFormVisible: false,
-//     };
-//   },
-//   created() {
-//     this.loadTableData();
-//   },
-//   methods: {
-//     async handleEdit(record) {
-//       const {data} = await getUser({id: record.id})
-//       this.$refs['userForm'].open(data, 'edit')
-//     },
-//     handleTableChange(pagination, filters, sorter) {
-//       this.queryParam.current = pagination.current
-//       this.loadTableData()
-//     },
-//     resetQueryParams() {
-//       this.queryParam = {...queryParam}
-//       this.loadTableData()
-//     },
-//     handleQueryStatusChange(value) {
-//       this.loadTableData()
-//     },
-//     toggleAdvanced() {
-//       this.advanced = !this.advanced;
-//     },
-//     async routeStatusChange(value, route) {
-//       // try {
-//       //   await updateRouteStatus({id: route.id, status: +value.key})
-//       //   await this.loadTableData()
-//       //   this.$message.success('修改成功')
-//       // } catch (e) {
-//       // }
-//     },
-//     getStatusDesc(status) {
-//       return routeStatusDictionary[status]
-//     },
-//     handleFormOnSuccess() {
-//       this.$message.success('保存成功')
-//       this.loadTableData()
-//     },
-//     handleEditFormCancel() {
-//     },
-//     showUserForm() {
-//       this.$refs['userForm'].open()
-//     },
-//     rowKey(record) {
-//       return record.id
-//     },
-//     handleDelete(record) {
-//       this.$confirm({
-//         title: `提示`,
-//         content: `确定要禁用[${record.name}]用户吗？`,
-//         onOk: async () => {
-//           deleteUser({id: record.id})
-//           .then(() => this.loadTableData())
-//         }
-//       })
-//     },
-//     toggleLoading() {
-//       this.tableLoading = !this.tableLoading
-//     },
-//     async loadTableData() {
-//       this.toggleLoading()
-//       const {data} = await getUsers(this.queryParam)
-//       this.tableData = data.records;
-//       this.pagination.total = data.total
-//       this.toggleLoading()
-//     }
-//   }
-// };
-</script>
+<!-- const routeStatusDictionary = {-->
+<!--   1: '已启用',-->
+<!--   2: '已禁用'-->
+<!-- }-->
+
+<!-- const pagination = {-->
+<!--   showSizeChanger: true,-->
+<!--   position: 'bottom',-->
+<!--   size: 'default',-->
+<!--   showQuickJumper: true,-->
+<!--   pageSizeOptions: ['15', '25', '35', '50'],-->
+<!--   defaultCurrent: 1,-->
+<!--   defaultPageSize: 15,-->
+<!--   total: 0-->
+<!-- }-->
+
+<!-- const queryParam = {-->
+<!--   current: 1,-->
+<!--   size: 15,-->
+<!-- }-->
+
+<!-- export default {-->
+<!--   name: 'PermissionRoute',-->
+<!--   components: {-->
+<!--     PermissionUserForm-->
+<!--   },-->
+<!--   data() {-->
+<!--     return {-->
+<!--       pagination,-->
+<!--       defaultExpandAllRows: false,-->
+<!--       tableLoading: false,-->
+<!--       advanced: false,-->
+<!--       queryParam: {...queryParam},-->
+<!--       tableData: [],-->
+<!--       columns: [-->
+<!--         {-->
+<!--           title: '用户名称',-->
+<!--           dataIndex: 'username',-->
+<!--           width: 50-->
+<!--         },-->
+<!--         {-->
+<!--           title: '手机号码',-->
+<!--           dataIndex: 'mobile',-->
+<!--           width: 50,-->
+<!--           customRender: (text, row, index) => {-->
+<!--             return text || '-'-->
+<!--           },-->
+<!--         },-->
+<!--         {-->
+<!--           title: '角色',-->
+<!--           dataIndex: 'roles',-->
+<!--           width: 100,-->
+<!--           align: 'left',-->
+<!--           scopedSlots: {customRender: 'roles'},-->
+<!--         },-->
+<!--         {-->
+<!--           title: '所属用户组',-->
+<!--           dataIndex: 'userGroups',-->
+<!--           align: 'left',-->
+<!--           width: 100,-->
+<!--           scopedSlots: {customRender: 'userGroups'},-->
+<!--         },-->
+<!--         {-->
+<!--           title: '状态',-->
+<!--           dataIndex: 'status',-->
+<!--           width: 10,-->
+<!--           align: "center",-->
+<!--           scopedSlots: {customRender: 'status'},-->
+<!--         },-->
+<!--         {-->
+<!--           title: '操作',-->
+<!--           width: 50,-->
+<!--           align: 'center',-->
+<!--           scopedSlots: {customRender: 'action'},-->
+<!--         },-->
+<!--       ],-->
+<!--       selectedRoute: {},-->
+<!--       routeStatusDictionary,-->
+<!--       userFormVisible: false,-->
+<!--     };-->
+<!--   },-->
+<!--   created() {-->
+<!--     this.loadTableData();-->
+<!--   },-->
+<!--   methods: {-->
+<!--     async handleEdit(record) {-->
+<!--       const {data} = await getUser({id: record.id})-->
+<!--       this.$refs['userForm'].open(data, 'edit')-->
+<!--     },-->
+<!--     handleTableChange(pagination, filters, sorter) {-->
+<!--       this.queryParam.current = pagination.current-->
+<!--       this.loadTableData()-->
+<!--     },-->
+<!--     resetQueryParams() {-->
+<!--       this.queryParam = {...queryParam}-->
+<!--       this.loadTableData()-->
+<!--     },-->
+<!--     handleQueryStatusChange(value) {-->
+<!--       this.loadTableData()-->
+<!--     },-->
+<!--     toggleAdvanced() {-->
+<!--       this.advanced = !this.advanced;-->
+<!--     },-->
+<!--     async routeStatusChange(value, route) {-->
+<!--       // try {-->
+<!--       //   await updateRouteStatus({id: route.id, status: +value.key})-->
+<!--       //   await this.loadTableData()-->
+<!--       //   this.$message.success('修改成功')-->
+<!--       // } catch (e) {-->
+<!--       // }-->
+<!--     },-->
+<!--     getStatusDesc(status) {-->
+<!--       return routeStatusDictionary[status]-->
+<!--     },-->
+<!--     handleFormOnSuccess() {-->
+<!--       this.$message.success('保存成功')-->
+<!--       this.loadTableData()-->
+<!--     },-->
+<!--     handleEditFormCancel() {-->
+<!--     },-->
+<!--     showUserForm() {-->
+<!--       this.$refs['userForm'].open()-->
+<!--     },-->
+<!--     rowKey(record) {-->
+<!--       return record.id-->
+<!--     },-->
+<!--     handleDelete(record) {-->
+<!--       this.$confirm({-->
+<!--         title: `提示`,-->
+<!--         content: `确定要禁用[${record.name}]用户吗？`,-->
+<!--         onOk: async () => {-->
+<!--           deleteUser({id: record.id})-->
+<!--           .then(() => this.loadTableData())-->
+<!--         }-->
+<!--       })-->
+<!--     },-->
+<!--     toggleLoading() {-->
+<!--       this.tableLoading = !this.tableLoading-->
+<!--     },-->
+<!--     async loadTableData() {-->
+<!--       this.toggleLoading()-->
+<!--       const {data} = await getUsers(this.queryParam)-->
+<!--       this.tableData = data.records;-->
+<!--       this.pagination.total = data.total-->
+<!--       this.toggleLoading()-->
+<!--     }-->
+<!--   }-->
+<!-- };-->
+<!--</script>-->

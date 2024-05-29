@@ -27,7 +27,7 @@ export const basicProps = {
   //大小
   size: {
     type: String,
-    default: 'medium',
+    default: 'small',
   },
   //标签位置
   labelPlacement: {

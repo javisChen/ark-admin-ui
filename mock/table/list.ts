@@ -32,11 +32,11 @@ export default [
       //并非真实，只是为了模拟搜索结果
       const count = name ? 30 : 60;
       return resultSuccess({
-        page: Number(page),
-        pageSize: Number(pageSize),
+        current: Number(page),
+        size: Number(pageSize),
         pageCount: count,
-        itemCount: count * Number(pageSize),
-        list,
+        total: count * Number(pageSize),
+        records: list,
       });
     },
   },

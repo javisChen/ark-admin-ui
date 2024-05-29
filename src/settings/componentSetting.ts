@@ -2,15 +2,15 @@ export default {
   table: {
     apiSetting: {
       // 当前页的字段名
-      pageField: 'page',
+      pageField: 'current',
       // 每页数量字段名
-      sizeField: 'pageSize',
+      sizeField: 'size',
       // 接口返回的数据字段名
-      listField: 'list',
+      listField: 'records',
       // 接口返回总页数字段名
       totalField: 'pageCount',
       //总数字段名
-      countField: 'itemCount',
+      countField: 'total',
     },
     //默认分页数量
     defaultPageSize: 10,

@@ -76,7 +76,7 @@
       <!--提交 重置 展开 收起 按钮-->
       <n-gi
         :span="isInline ? '' : 24"
-        :suffix="isInline ? true : false"
+        :suffix="!!isInline"
         #="{ overflow }"
         v-if="getProps.showActionButtonGroup"
       >
@@ -134,7 +134,7 @@
   import type { GridProps } from 'naive-ui/lib/grid';
   import type { FormSchema, FormProps, FormActionType } from './types/form';
 
-  import { isArray } from '@/utils/is/index';
+  import { isArray } from '@/utils/is';
   import { deepMerge } from '@/utils';
 
   export default defineComponent({
