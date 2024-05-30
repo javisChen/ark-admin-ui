@@ -1,14 +1,9 @@
 import {DataTableColumns, NTag} from 'naive-ui';
-import userConst from './userConst';
+import {STATUS_ENABLED, STATUS_DICT} from './userConst';
 
 export const columns: DataTableColumns = [
-  // {
-  //   title: 'id',
-  //   key: 'id',
-  //   width: 100,
-  // },
   {
-    title: '用户名',
+    title: '用户名12',
     key: 'username',
     width: 100,
   },
@@ -23,8 +18,8 @@ export const columns: DataTableColumns = [
     width: 100,
     render: (row) => {
       return (
-        <NTag type={row.status ? 'success' : 'error'}>
-          {row.status ? '启用' : '禁用'}
+        <NTag type={row.status === STATUS_ENABLED ? 'success' : 'error'}>
+          {STATUS_DICT[row.status as number]}
         </NTag>
       );
     }

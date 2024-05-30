@@ -1,11 +1,7 @@
-import type { PropType } from 'vue';
-import { propTypes } from '@/utils/propTypes';
-import { BasicColumn } from './types/table';
-import { NDataTable } from 'naive-ui';
-export const userConst = {
+export const STATUS_ENABLED= 1
+export const STATUS_DISABLED= 2
 
-  routeStatusDictionary: {
-    1: '已启用',
-    2: '已禁用'
-  }
-};
+export const STATUS_DICT = {
+  [STATUS_ENABLED]: '已启用',
+  [STATUS_DISABLED]: '已禁用'
+}

@@ -45,11 +45,13 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
     plugins: createVitePlugins(viteEnv, isBuild, prodMock),
     define: {
       __APP_INFO__: JSON.stringify(__APP_INFO__),
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true'
     },
     server: {
       host: true,
       port: VITE_PORT,
       proxy: createProxy(VITE_PROXY),
+      hmr: true
     },
     optimizeDeps: {
       include: [],

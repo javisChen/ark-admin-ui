@@ -1,5 +1,7 @@
 <template>
-  <n-drawer v-model:show="isDrawer" :width="width" :placement="placement">
+  <n-drawer v-model:show="isDrawer"
+            :width="width"
+            :placement="placement">
     <n-drawer-content :title="title" closable>
       <n-form
         :model="formParams"
@@ -15,14 +17,14 @@
           <n-input placeholder="请输入手机号" v-model:value="formParams.mobile"/>
         </n-form-item>
         <n-form-item label="密码" path="password">
-          <n-input placeholder="请输入密码" v-model:value="formParams.password"/>
+          <n-input type="password" placeholder="请输入密码" v-model:value="formParams.password"/>
         </n-form-item>
       </n-form>
 
       <template #footer>
         <n-space>
           <n-button type="primary" :loading="subLoading" @click="formSubmit">提交</n-button>
-          <n-button @click="handleReset">重置</n-button>
+          <n-button @click="handleReset">取消</n-button>
         </n-space>
       </template>
     </n-drawer-content>
@@ -33,6 +35,13 @@
 
 import {reactive, ref, toRefs} from 'vue';
 import {useMessage} from 'naive-ui';
+import UserRequest from "@/api/iam/model/userModel";
+import {createUser} from "@/api/iam/user";
+import md5 from "md5/md5";
+
+const message = useMessage();
+
+const formRef: any = ref(null);
 
 const rules = {
   username: {
@@ -52,7 +61,10 @@ const rules = {
   },
 };
 
-const props = defineProps({
+const handleSuccessEvent = 'handleSuccess';
+const emit = defineEmits([handleSuccessEvent])
+
+defineProps({
   title: {
     type: String,
     required: true,
@@ -62,15 +74,6 @@ const props = defineProps({
     default: 450,
   },
 });
-
-const message = useMessage();
-const formRef: any = ref(null);
-
-interface UserRequest {
-  username: string;
-  mobile: string;
-  password: string;
-}
 
 const userRequestRef = (): UserRequest => ({
   username: '',
@@ -96,11 +99,19 @@ function closeDrawer() {
 }
 
 function formSubmit() {
-  formRef.value.validate((errors) => {
+  formRef.value.validate(async (errors) => {
     if (!errors) {
-      message.success('添加成功');
-      handleReset();
-      closeDrawer();
+      try {
+        const form = {...state.formParams}
+        form.password = md5(form.password)
+        const data = await createUser(form)
+        emit(handleSuccessEvent, {})
+        message.success('新建成功');
+        handleReset();
+        closeDrawer();
+      } catch (e) {
+        console.log(e)
+      }
     } else {
       message.error('请填写完整信息');
     }
@@ -112,30 +123,16 @@ function handleReset() {
   state.formParams = Object.assign(state.formParams, userRequestRef());
 }
 
-
 const {
   isDrawer,
   subLoading,
   formParams,
-  placement,
-  alertText
+  placement
 } = toRefs(state)
 
-// 使用 defineExpose 显式暴露方法和数据
 defineExpose({
   closeDrawer,
   openDrawer
 });
-
-// return {
-//   ...toRefs(state),
-//   // state,
-//   formRef,
-//   rules,
-//   formSubmit,
-//   handleReset,
-//   openDrawer,
-//   closeDrawer,
-// };
 
 </script>
