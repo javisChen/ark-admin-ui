@@ -11,20 +11,20 @@
         label-width="80"
       >
         <n-form-item label="用户名" path="username">
-          <n-input placeholder="请输入用户名" v-model:value="formParams.username"/>
+          <n-input placeholder="请输入用户名" v-model:value="formParams.username" autocomplete="off"/>
         </n-form-item>
         <n-form-item label="手机号" path="mobile">
-          <n-input placeholder="请输入手机号" v-model:value="formParams.mobile"/>
+          <n-input placeholder="请输入手机号" v-model:value="formParams.mobile" autocomplete="off"/>
         </n-form-item>
         <n-form-item label="密码" path="password">
-          <n-input type="password" placeholder="请输入密码" v-model:value="formParams.password"/>
+          <n-input type="password" placeholder="请输入密码" v-model:value="formParams.password" autocomplete="off"/>
         </n-form-item>
       </n-form>
 
       <template #footer>
         <n-space>
           <n-button type="primary" :loading="subLoading" @click="formSubmit">提交</n-button>
-          <n-button @click="handleReset">取消</n-button>
+          <n-button @click="closeDrawer ">取消</n-button>
         </n-space>
       </template>
     </n-drawer-content>
@@ -33,10 +33,10 @@
 
 <script lang="tsx" setup>
 
-import {reactive, ref, toRefs} from 'vue';
+import {reactive, ref, toRefs, watch} from 'vue';
 import {useMessage} from 'naive-ui';
 import UserRequest from "@/api/iam/model/userModel";
-import {createUser} from "@/api/iam/user";
+import {createUser, getUser} from "@/api/iam/user";
 import md5 from "md5/md5";
 
 const message = useMessage();
@@ -64,7 +64,7 @@ const rules = {
 const handleSuccessEvent = 'handleSuccess';
 const emit = defineEmits([handleSuccessEvent])
 
-defineProps({
+const props = defineProps({
   title: {
     type: String,
     required: true,
@@ -73,7 +73,30 @@ defineProps({
     type: Number,
     default: 450,
   },
+  userId: {
+    type: [Number, String]
+  }
 });
+
+// watch(
+//   () => props.userId,
+//   (newUserId) => {
+//     if (newUserId) {
+//       fetchUserData(newUserId);
+//     }
+//   },
+//   {immediate: true}
+// );
+
+async function fetchUserData(newUserId: Number | String) {
+  try {
+    const data = await getUser({id: newUserId})
+    console.log(data)
+    state.formParams = data;
+  } catch (e) {
+    console.log(e)
+  }
+}
 
 const userRequestRef = (): UserRequest => ({
   username: '',
@@ -90,12 +113,17 @@ const state = reactive({
     '该功能主要实时预览各种布局效果，更多完整配置在 projectSetting.ts 中设置，建议在生产环境关闭该布局预览功能。',
 });
 
-function openDrawer() {
+function openDrawer(newUserId: Number | String) {
   state.isDrawer = true;
+  console.log('userId', newUserId)
+  if (newUserId) {
+    fetchUserData(newUserId);
+  }
 }
 
 function closeDrawer() {
   state.isDrawer = false;
+  handleReset();
 }
 
 function formSubmit() {

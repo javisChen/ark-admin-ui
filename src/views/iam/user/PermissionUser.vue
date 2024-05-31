@@ -65,9 +65,9 @@ const params = reactive({
   username: '',
 });
 
-function openCreateDrawer() {
+function openCreateDrawer(e, id: Number | String) {
   const {openDrawer} = createDrawerRef.value;
-  openDrawer();
+  openDrawer(id);
 }
 
 const actionColumn = reactive({
@@ -144,7 +144,7 @@ function handleDelete(record) {
 }
 
 function handleEdit(record) {
-  message.success('您点击了编辑按钮');
+  openCreateDrawer({}, record.id as number)
 }
 
 function submitQuery(values: Recordable) {
