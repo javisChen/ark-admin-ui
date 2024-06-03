@@ -1,18 +1,13 @@
 import {del, get, http, post, put} from '@/utils/http/axios';
 import UserRequest from "@/api/iam/model/userModel";
-
-const Base: any = {
-  serviceName: '/iam'
-}
+import ApiBase from "@/api/api-base";
 
 const api = {
-  users: Base.serviceName + '/v1/users/pages',
-  user: Base.serviceName + '/v1/users/details',
-  createUser: Base.serviceName + '/v1/users/create',
-  updateUser: Base.serviceName + '/v1/users/update',
-  userInfo: Base.serviceName + '/v1/users/self',
-  userSelfMenus: Base.serviceName + '/v2/users/self/menus',
-  userPermissionElements: Base.serviceName + '/v1/users/self/elements',
+  users: ApiBase.iam + '/v1/users',
+  userDetails: ApiBase.iam + '/v1/users/details',
+  userSelf: ApiBase.iam + '/v1/users/self',
+  userSelfMenus: ApiBase.iam + '/v2/users/self/menus',
+  userPermissionElements: ApiBase.iam + '/v1/users/self/elements',
 }
 
 /**
@@ -29,7 +24,7 @@ export function adminMenus() {
  * 获取tree菜单列表
  * @param params
  */
-export function getMenuList(params?) {
+export function getMenuList(params: any) {
   return http.request({
     url: '/menu/list',
     method: 'GET',
@@ -40,21 +35,21 @@ export function getMenuList(params?) {
 
 export default api
 
-export const getUsers = (params) => get({url: api.users, params})
+export const fetchUsers = (params: any) => get({url: api.users, params})
 
-export const getUser = (params) => get({url: api.user, params})
+export const fetchUser = (params: any) => get({url: api.userDetails, params})
 
-export const deleteUser = (params) => del({url: api.user, params})
+export const deleteUser = (params: any) => del({url: api.users, params})
 
-export const getUserInfo = (params) => get({url: api.userInfo, params})
+export const fetchUserInfo = (params: any) => get({url: api.userSelf, params})
 
-export const getUserRoutes = (params) => get({url: api.userSelfMenus, params})
+export const fetchUserRoutes = (params: any) => get({url: api.userSelfMenus, params})
 
-export const getUserPageElementPermissions = (params) => get({
+export const getUserPageElementPermissions = (params: any) => get({
   url: api.userPermissionElements,
   params
 })
 
-export const createUser = (data : UserRequest) => post({url: api.createUser, data})
+export const createUser = (data: UserRequest) => post({url: api.users, data})
 
-export const updateUser = (data : UserRequest) => put({url: api.updateUser, data})
+export const updateUser = (data: UserRequest) => put({url: api.users, data})

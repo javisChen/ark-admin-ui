@@ -238,3 +238,36 @@ export function lighten(color: string, amount: number) {
 export function isUrl(url: string) {
   return /^(http|https):\/\//g.test(url);
 }
+
+
+/**
+ * 把长度为0的children删掉
+ */
+export function filterNonChildren(item) {
+  const children = item.children
+  if (!children || children.length === 0) {
+    delete item.children
+    return;
+  }
+  for (let i = 0; i < children.length; i++) {
+    let child = children[i]
+    if (!child.children || child.children.length === 0) {
+      delete child.children
+    } else {
+      filterNonChildren(child)
+    }
+  }
+  return children;
+}
+
+export function parseLevelPath(levelPath) {
+  const split = levelPath.split('.');
+  const splice = split.splice(0, split.length - 2); // -2 是把自身给排除掉
+  return splice.map(item => item);
+}
+
+export function parseLevelPathFull(levelPath) {
+  const split = levelPath.split('.');
+  const splice = split.splice(0, split.length); // -2 是把自身给排除掉
+  return splice.map(item => item);
+}

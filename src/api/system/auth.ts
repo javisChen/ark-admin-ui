@@ -1,20 +1,19 @@
 import {http} from '@/utils/http/axios';
 
-const Base: any = {
-  serviceName: '/auth'
-}
+import ApiBase from "@/api/api-base";
+
 
 const userApi = {
-  Login: Base.serviceName + '/v1/login/account',
-  MobileLogin: Base.serviceName + '/v1/login/mobile',
-  Logout: Base.serviceName + '/v1/logout',
-  ForgePassword: Base.serviceName + '/v1/auth/forge-password',
-  Register: Base.serviceName + '/v1/auth/register',
-  twoStepCode: Base.serviceName + '/v1/auth/2step-code',
-  SendSms: Base.serviceName + '/v1/code/sms',
-  SendSmsErr: Base.serviceName + '/v1/account/sms_err',
-  UserInfo: Base.serviceName + '/v1/user/info',
-  UserMenu: Base.serviceName + '/v1/user/routes'
+  Login: ApiBase.auth + '/v1/login/account',
+  MobileLogin: ApiBase.auth + '/v1/login/mobile',
+  Logout: ApiBase.auth + '/v1/logout',
+  ForgePassword: ApiBase.auth + '/v1/auth/forge-password',
+  Register: ApiBase.auth + '/v1/auth/register',
+  twoStepCode: ApiBase.auth + '/v1/auth/2step-code',
+  SendSms: ApiBase.auth + '/v1/code/sms',
+  SendSmsErr: ApiBase.auth + '/v1/account/sms_err',
+  UserInfo: ApiBase.iam + '/v1/user/info',
+  UserMenu: ApiBase.iam + '/v1/user/routes'
 }
 
 export interface BasicResponseModel<T = any> {
@@ -83,7 +82,7 @@ export function changePassword(params, uid) {
  */
 export function logout(params) {
   return http.request({
-    url: '/login/logout',
+    url: userApi.Logout,
     method: 'POST',
     params,
   });

@@ -1,17 +1,14 @@
 import {http} from '@/utils/http/axios';
-
-const Base: any = {
-  serviceName: '/iam'
-}
+import ApiBase from "@/api/api-base";
 
 const api = {
-  users: Base.serviceName + '/v1/users/pages',
-  user: Base.serviceName + '/v1/users/details',
-  createUser: Base.serviceName + '/v1/users/create',
-  updateUser: Base.serviceName + '/v1/users/update',
-  userInfo: Base.serviceName + '/v1/users/self',
-  userSelfMenus: Base.serviceName + '/v2/users/self/menus',
-  userPermissionElements: Base.serviceName + '/v1/users/self/elements',
+  users: ApiBase.iam + '/v1/users/pages',
+  user: ApiBase.iam + '/v1/users/details',
+  createUser: ApiBase.iam + '/v1/users/create',
+  updateUser: ApiBase.iam + '/v1/users/update',
+  userInfo: ApiBase.iam + '/v1/users/self',
+  userSelfMenus: ApiBase.iam + '/v2/users/self/menus',
+  userPermissionElements: ApiBase.iam + '/v1/users/self/elements',
 }
 
 /**

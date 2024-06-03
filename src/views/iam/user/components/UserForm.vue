@@ -1,6 +1,7 @@
 <template>
   <n-drawer v-model:show="isDrawer"
             :width="width"
+            @after-leave="closeDrawer"
             :placement="placement">
     <n-drawer-content :title="title" closable>
       <n-form
@@ -16,7 +17,7 @@
         <n-form-item label="手机号" path="mobile">
           <n-input placeholder="请输入手机号" v-model:value="formParams.mobile" autocomplete="off"/>
         </n-form-item>
-        <n-form-item label="密码" path="password">
+        <n-form-item label="密码" path="password" v-if="!isEdit">
           <n-input type="password" placeholder="请输入密码" v-model:value="formParams.password" autocomplete="off"/>
         </n-form-item>
       </n-form>
@@ -36,7 +37,7 @@
 import {reactive, ref, toRefs, watch} from 'vue';
 import {useMessage} from 'naive-ui';
 import UserRequest from "@/api/iam/model/userModel";
-import {createUser, getUser} from "@/api/iam/user";
+import {createUser, fetchUser, updateUser} from "@/api/iam/user";
 import md5 from "md5/md5";
 
 const message = useMessage();
@@ -78,19 +79,9 @@ const props = defineProps({
   }
 });
 
-// watch(
-//   () => props.userId,
-//   (newUserId) => {
-//     if (newUserId) {
-//       fetchUserData(newUserId);
-//     }
-//   },
-//   {immediate: true}
-// );
-
 async function fetchUserData(newUserId: Number | String) {
   try {
-    const data = await getUser({id: newUserId})
+    const data = await fetchUser({id: newUserId})
     console.log(data)
     state.formParams = data;
   } catch (e) {
@@ -105,6 +96,7 @@ const userRequestRef = (): UserRequest => ({
 });
 
 const state = reactive({
+  isEdit: true,
   isDrawer: false,
   subLoading: false,
   formParams: userRequestRef(),
@@ -114,10 +106,11 @@ const state = reactive({
 });
 
 function openDrawer(newUserId: Number | String) {
-  state.isDrawer = true;
-  console.log('userId', newUserId)
+  state.isDrawer = true
+  state.isEdit = false
   if (newUserId) {
     fetchUserData(newUserId);
+    state.isEdit = true
   }
 }
 
@@ -131,11 +124,15 @@ function formSubmit() {
     if (!errors) {
       try {
         const form = {...state.formParams}
-        form.password = md5(form.password)
-        const data = await createUser(form)
+        if (state.isEdit) {
+          delete form.password;
+          await updateUser(form)
+        } else {
+          form.password = md5(form.password)
+          await createUser(form)
+        }
         emit(handleSuccessEvent, {})
-        message.success('新建成功');
-        handleReset();
+        message.success('操作成功');
         closeDrawer();
       } catch (e) {
         console.log(e)
@@ -155,7 +152,8 @@ const {
   isDrawer,
   subLoading,
   formParams,
-  placement
+  placement,
+  isEdit
 } = toRefs(state)
 
 defineExpose({

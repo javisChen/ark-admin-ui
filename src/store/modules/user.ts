@@ -3,7 +3,7 @@ import {store} from '@/store';
 import {ACCESS_TOKEN, CURRENT_USER, IS_SCREENLOCKED} from '@/store/mutation-types';
 import {ResultEnum} from '@/enums/httpEnum';
 
-import {getUserInfo as getUserInfoApi, login} from '@/api/system/auth';
+import {getUserInfo as getUserInfoApi, login, logout} from '@/api/system/auth';
 import {storage} from '@/utils/Storage';
 
 export type UserInfoType = {
@@ -94,10 +94,15 @@ export const useUserStore = defineStore({
 
     // 登出
     async logout() {
-      this.setPermissions([]);
-      this.setUserInfo({name: '', email: ''});
-      storage.remove(ACCESS_TOKEN);
-      storage.remove(CURRENT_USER);
+      try {
+        await logout({});
+        this.setPermissions([]);
+        this.setUserInfo({name: '', email: ''});
+        storage.remove(ACCESS_TOKEN);
+        storage.remove(CURRENT_USER);
+      } catch (e) {
+        console.log(e)
+      }
     },
   },
 });
