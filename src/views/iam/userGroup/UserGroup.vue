@@ -1,46 +1,47 @@
 <template>
-  <n-card title="用户列表" :bordered="false" class="proCard">
+  <div>
+    <n-card title="用户组列表" :bordered="false" class="proCard">
 
-    <BasicForm @register="register"
-               @submit="submitQuery"
-               @reset="resetQuery">
-      <template #statusSlot="{ model, field }">
-        <n-input v-model:value="model[field]"/>
-      </template>
-    </BasicForm>
+      <BasicForm @register="register"
+                 @submit="submitQuery"
+                 @reset="resetQuery">
+        <template #statusSlot="{ model, field }">
+          <n-input v-model:value="model[field]"/>
+        </template>
+      </BasicForm>
 
-    <BasicTable
-      title=""
-      titleTooltip=""
-      :columns="columns"
-      :request="loadDataTable"
-      :row-key="(row) => row.id"
-      ref="actionRef"
-      :actionColumn="actionColumn"
-      :scroll-x="1360"
-      @update:checked-row-keys="onCheckedRow">
+      <BasicTable
+          title=""
+          titleTooltip=""
+          :columns="columns"
+          :request="loadDataTable"
+          :row-key="(row) => row.id"
+          ref="actionRef"
+          :actionColumn="actionColumn"
+          :scroll-x="1360"
+          @update:checked-row-keys="onCheckedRow">
 
-      <template #tableTitle>
-      </template>
+        <template #tableTitle>
+        </template>
 
-      <template #toolbar>
-        <n-button type="primary" @click="openCreateDrawer">
-          <template #icon>
-            <n-icon>
-              <PlusOutlined/>
-            </n-icon>
-          </template>
-          新建用户
-        </n-button>
-      </template>
+        <template #toolbar>
+          <n-button type="primary" @click="openCreateDrawer">
+            <template #icon>
+              <n-icon>
+                <PlusOutlined/>
+              </n-icon>
+            </template>
+            新建用户
+          </n-button>
+        </template>
 
-    </BasicTable>
+      </BasicTable>
 
-    <user-form ref="createDrawerRef"
-               title="新增用户"
-               @handle-success="handleCreateSuccess"/>
-  </n-card>
-
+      <user-form ref="createDrawerRef"
+                 title="新增用户组"
+                 @handle-success="handleCreateSuccess"/>
+    </n-card>
+  </div>
 </template>
 
 
@@ -65,7 +66,7 @@ const columns: DataTableColumns = [
   {
     title: '用户组名称',
     key: 'name',
-    width: 100,
+    width: 120,
   },
   {
     title: '角色权限',
@@ -75,9 +76,9 @@ const columns: DataTableColumns = [
       return
       {
         row.roles.map(item => (
-          <NTag type="info" key={item}>
-            {item}
-          </NTag>
+            <NTag type="info" key={item}>
+              {item}
+            </NTag>
         ))
       }
     }

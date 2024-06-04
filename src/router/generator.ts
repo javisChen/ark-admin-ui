@@ -23,13 +23,14 @@ export const generateRoutes = (routerMap, parent?): any[] => {
     const currentRoute: any = {
       // 路由地址 动态拼接生成如 /dashboard/workplace
       // path: `${(parent && parent.path) ?? ''}/${item.path}`,
-      path: `${item.path}`,
+      path: `${item.path2}`,
       // 路由名称，建议唯一
       name: item.name ?? '',
       // 该路由对应页面的 组件
-      component: item.component,
+      component: item.component2,
       // meta: 页面标题, 菜单图标, 页面权限(供指令权限用，可去掉)
       meta: {
+        keepAlive: true,
         ...item.meta,
         label: item.meta.title,
         icon: constantRouterIcon[item.meta.icon] || null,
