@@ -1,10 +1,9 @@
 <template>
   <div>
-    <div class="n-layout-page-header">
-      <n-card :bordered="false" title="菜单权限管理">
-        页面数据为 Mock 示例数据，非真实数据。
-      </n-card>
-    </div>
+<!--    <div class="n-layout-page-header">-->
+<!--      <n-card :bordered="false" title="菜单管理">-->
+<!--      </n-card>-->
+<!--    </div>-->
     <n-grid class="mt-4" cols="1 s:1 m:1 l:3 xl:3 2xl:3" responsive="screen" :x-gap="12">
       <n-gi span="1">
         <n-card :segmented="{ content: true }" :bordered="false" size="small">
@@ -56,6 +55,8 @@
                   :virtual-scroll="true"
                   :pattern="pattern"
                   :data="treeData"
+                  key-field="id"
+                  label-field="name"
                   :expandedKeys="expandedKeys"
                   style="max-height: 650px; overflow: hidden"
                   @update:selected-keys="selectedTree"
@@ -76,7 +77,6 @@
               <span>编辑菜单{{ treeItemTitle ? `：${treeItemTitle}` : '' }}</span>
             </n-space>
           </template>
-          <n-alert type="info" closable> 从菜单列表选择一项后，进行编辑</n-alert>
           <n-form
             :model="formParams"
             :rules="rules"
@@ -90,7 +90,7 @@
               <span>{{ formParams.type === 1 ? '侧边栏菜单' : '' }}</span>
             </n-form-item>
             <n-form-item label="标题" path="label">
-              <n-input placeholder="请输入标题" v-model:value="formParams.label" />
+              <n-input placeholder="请输入标题" v-model:value="formParams.name" />
             </n-form-item>
             <n-form-item label="副标题" path="subtitle">
               <n-input placeholder="请输入副标题" v-model:value="formParams.subtitle" />
@@ -129,7 +129,7 @@
   import { ref, unref, reactive, onMounted, computed } from 'vue';
   import { useDialog, useMessage } from 'naive-ui';
   import { DownOutlined, AlignLeftOutlined, SearchOutlined, FormOutlined } from '@vicons/antd';
-  import { getMenuList } from '@/api/system/menu';
+  import { getRoutes } from '@/api/iam/menu-api';
   import { getTreeItem } from '@/utils';
   import CreateDrawer from './CreateDrawer.vue';
 
@@ -183,7 +183,7 @@
 
   const formParams = reactive({
     type: 1,
-    label: '',
+    name: '',
     subtitle: '',
     path: '',
     auth: '',
@@ -204,7 +204,7 @@
     if (keys.length) {
       const treeItem = getTreeItem(unref(treeData), keys[0]);
       treeItemKey.value = keys;
-      treeItemTitle.value = treeItem.label;
+      treeItemTitle.value = treeItem.name;
       Object.assign(formParams, treeItem);
       isEditMenu.value = true;
     } else {
@@ -248,15 +248,17 @@
     if (expandedKeys.value.length) {
       expandedKeys.value = [];
     } else {
-      expandedKeys.value = unref(treeData).map((item: any) => item.key as string) as [];
+      expandedKeys.value = unref(treeData).map((item: any) => item.id as string) as [];
     }
   }
 
   onMounted(async () => {
-    const treeMenuList = await getMenuList();
-    const keys = treeMenuList.list.map((item) => item.key);
+    const data = await getRoutes({});
+    console.log(data)
+    const keys = data.records.map((item) => item.id);
+    console.log(keys)
     Object.assign(formParams, keys);
-    treeData.value = treeMenuList.list;
+    treeData.value = data.records;
     loading.value = false;
   });
 
