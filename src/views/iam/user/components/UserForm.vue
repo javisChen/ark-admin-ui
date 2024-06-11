@@ -74,9 +74,6 @@ const props = defineProps({
     type: Number,
     default: 450,
   },
-  userId: {
-    type: [Number, String]
-  }
 });
 
 async function fetchUserData(newUserId: Number | String) {

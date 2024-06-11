@@ -1,9 +1,9 @@
 <template>
   <div>
-<!--    <div class="n-layout-page-header">-->
-<!--      <n-card :bordered="false" title="菜单管理">-->
-<!--      </n-card>-->
-<!--    </div>-->
+    <!--    <div class="n-layout-page-header">-->
+    <!--      <n-card :bordered="false" title="菜单管理">-->
+    <!--      </n-card>-->
+    <!--    </div>-->
     <n-grid class="mt-4" cols="1 s:1 m:1 l:3 xl:3 2xl:3" responsive="screen" :x-gap="12">
       <n-gi span="1">
         <n-card :segmented="{ content: true }" :bordered="false" size="small">
@@ -15,7 +15,7 @@
                   <template #icon>
                     <div class="flex items-center">
                       <n-icon size="14">
-                        <DownOutlined />
+                        <DownOutlined/>
                       </n-icon>
                     </div>
                   </template>
@@ -26,7 +26,7 @@
                 <template #icon>
                   <div class="flex items-center">
                     <n-icon size="14">
-                      <AlignLeftOutlined />
+                      <AlignLeftOutlined/>
                     </n-icon>
                   </div>
                 </template>
@@ -34,33 +34,36 @@
             </n-space>
           </template>
           <div class="w-full menu">
-            <n-input type="input" v-model:value="pattern" placeholder="输入菜单名称搜索">
-              <template #suffix>
-                <n-icon size="18" class="cursor-pointer">
-                  <SearchOutlined />
-                </n-icon>
-              </template>
-            </n-input>
+            <n-space vertical>
+              <application-select @on-change="handleApplicationUpdateValue"/>
+              <n-input type="input" v-model:value="pattern" placeholder="输入菜单名称搜索">
+                <template #suffix>
+                  <n-icon size="18" class="cursor-pointer">
+                    <SearchOutlined/>
+                  </n-icon>
+                </template>
+              </n-input>
+            </n-space>
             <div class="py-3 menu-list">
               <template v-if="loading">
                 <div class="flex items-center justify-center py-4">
-                  <n-spin size="medium" />
+                  <n-spin size="medium"/>
                 </div>
               </template>
               <template v-else>
                 <n-tree
-                  block-line
-                  cascade
-                  checkable
-                  :virtual-scroll="true"
-                  :pattern="pattern"
-                  :data="treeData"
-                  key-field="id"
-                  label-field="name"
-                  :expandedKeys="expandedKeys"
-                  style="max-height: 650px; overflow: hidden"
-                  @update:selected-keys="selectedTree"
-                  @update:expanded-keys="onExpandedKeys"
+                    block-line
+                    cascade
+                    checkable
+                    :virtual-scroll="true"
+                    :pattern="pattern"
+                    :data="treeData"
+                    key-field="id"
+                    label-field="name"
+                    :expandedKeys="expandedKeys"
+                    style="max-height: 650px; overflow: hidden"
+                    @update:selected-keys="selectedTree"
+                    @update:expanded-keys="onExpandedKeys"
                 />
               </template>
             </div>
@@ -72,47 +75,66 @@
           <template #header>
             <n-space>
               <n-icon size="18">
-                <FormOutlined />
+                <FormOutlined/>
               </n-icon>
               <span>编辑菜单{{ treeItemTitle ? `：${treeItemTitle}` : '' }}</span>
             </n-space>
           </template>
           <n-form
-            :model="formParams"
-            :rules="rules"
-            ref="formRef"
-            label-placement="left"
-            :label-width="100"
-            v-if="isEditMenu"
-            class="py-4"
+              require-mark-placement="left"
+              :model="formParams"
+              :rules="rules"
+              ref="formRef"
+              label-placement="left"
+              :label-width="100"
+              v-if="isEditMenu"
+              class="py-4"
           >
+            <n-form-item label="应用" path="applicationId">
+              <application-select @on-change="handleMenuApplicationUpdateValue"
+                                  v-model="formParams.applicationId"/>
+            </n-form-item>
+            <n-form-item label="名称" path="name">
+              <n-input placeholder="请输入标题" v-model:value="formParams.name"/>
+            </n-form-item>
             <n-form-item label="类型" path="type">
-              <span>{{ formParams.type === 1 ? '侧边栏菜单' : '' }}</span>
-            </n-form-item>
-            <n-form-item label="标题" path="label">
-              <n-input placeholder="请输入标题" v-model:value="formParams.name" />
-            </n-form-item>
-            <n-form-item label="副标题" path="subtitle">
-              <n-input placeholder="请输入副标题" v-model:value="formParams.subtitle" />
-            </n-form-item>
-            <n-form-item label="路径" path="path">
-              <n-input placeholder="请输入路径" v-model:value="formParams.path" />
-            </n-form-item>
-            <n-form-item label="打开方式" path="openType">
-              <n-radio-group v-model:value="formParams.openType" name="openType">
+              <n-radio-group v-model:value="formParams.type" name="type">
                 <n-space>
-                  <n-radio :value="1">当前窗口</n-radio>
-                  <n-radio :value="2">新窗口</n-radio>
+                  <n-radio v-for="option in menuTypes"
+                           :value="option.key">{{ option.label }}
+                  </n-radio>
                 </n-space>
               </n-radio-group>
             </n-form-item>
-            <n-form-item label="菜单权限" path="auth">
-              <n-input placeholder="请输入权限，多个权限用，分割" v-model:value="formParams.auth" />
+            <n-form-item label="名称" path="name">
+              <n-input placeholder="请输入标题" v-model:value="formParams.name"/>
             </n-form-item>
+            <n-form-item label="路径" path="path2">
+              <n-input placeholder="请输入路径，子页面不需要以“/”开头" v-model:value="formParams.path2"/>
+            </n-form-item>
+            <n-form-item label="组件" path="component2">
+              <n-input placeholder="请输入组件，子组件必填" v-model:value="formParams.component2"/>
+            </n-form-item>
+            <n-form-item label="Icon" path="icon">
+              <n-input placeholder="请输入Icon" v-model:value="formParams.icon"/>
+            </n-form-item>
+            <n-form-item label="排序" path="sequence">
+              <n-input placeholder="排序，值越小排行越前" v-model:value="formParams.sequence"/>
+            </n-form-item>
+
+            <!--            <n-form-item label="打开方式" path="openType">-->
+            <!--              <n-radio-group v-model:value="formParams.openType" name="openType">-->
+            <!--                <n-space>-->
+            <!--                  <n-radio :value="1">当前窗口</n-radio>-->
+            <!--                  <n-radio :value="2">新窗口</n-radio>-->
+            <!--                </n-space>-->
+            <!--              </n-radio-group>-->
+            <!--            </n-form-item>-->
             <n-form-item path="auth" style="margin-left: 100px">
               <n-space>
                 <n-button type="primary" :loading="subLoading" @click="formSubmit"
-                  >保存修改</n-button
+                >保存修改
+                </n-button
                 >
                 <n-button @click="handleReset">重置</n-button>
                 <n-button @click="handleDel">删除</n-button>
@@ -122,147 +144,180 @@
         </n-card>
       </n-gi>
     </n-grid>
-    <CreateDrawer ref="createDrawerRef" :title="drawerTitle" />
+    <CreateDrawer ref="createDrawerRef" :title="drawerTitle"/>
   </div>
 </template>
-<script lang="ts" setup>
-  import { ref, unref, reactive, onMounted, computed } from 'vue';
-  import { useDialog, useMessage } from 'naive-ui';
-  import { DownOutlined, AlignLeftOutlined, SearchOutlined, FormOutlined } from '@vicons/antd';
-  import { getRoutes } from '@/api/iam/menu-api';
-  import { getTreeItem } from '@/utils';
-  import CreateDrawer from './CreateDrawer.vue';
+<script lang="tsx" setup>
+import {computed, onMounted, reactive, ref, unref, VNodeChild} from 'vue';
+import {useDialog, useMessage} from 'naive-ui';
+import {AlignLeftOutlined, DownOutlined, FormOutlined, SearchOutlined} from '@vicons/antd';
+import {fetchMenus} from '@/api/iam/menu-api';
+import {getTreeItem} from '@/utils';
+import CreateDrawer from './CreateDrawer.vue';
+import {menuTypes} from "./menuConst";
+import ApplicationSelect from "@/views/iam/menu/ApplicationSelect.vue";
 
-  const rules = {
-    label: {
-      required: true,
-      message: '请输入标题',
-      trigger: 'blur',
-    },
-    path: {
-      required: true,
-      message: '请输入路径',
-      trigger: 'blur',
-    },
-  };
+const rules = {
+  applicationId: {
+    required: true,
+    message: '请选择应用',
+    trigger: 'blur',
+  },
+  type: {
+    required: true,
+    message: '请选择类型',
+    trigger: 'blur',
+  },
+  name: {
+    required: true,
+    message: '请输入标题',
+    trigger: 'blur',
+  },
+  path2: {
+    required: false,
+    message: '请输入路径',
+    trigger: 'blur',
+  },
+  component2: {
+    required: false,
+    message: '请输入组件',
+    trigger: 'blur',
+  },
+};
 
-  const formRef: any = ref(null);
-  const createDrawerRef = ref();
-  const message = useMessage();
-  const dialog = useDialog();
+const formRef: any = ref(null);
+const createDrawerRef = ref();
+const message = useMessage();
+const dialog = useDialog();
 
-  let treeItemKey = ref([]);
+let treeItemKey = ref([]);
 
-  let expandedKeys = ref([]);
+let expandedKeys = ref([]);
 
-  const treeData = ref([]);
+const treeData = ref([]);
 
-  const loading = ref(true);
-  const subLoading = ref(false);
-  const isEditMenu = ref(false);
-  const treeItemTitle = ref('');
-  const pattern = ref('');
-  const drawerTitle = ref('');
+const loading = ref(true);
+const subLoading = ref(false);
+const isEditMenu = ref(false);
+const treeItemTitle = ref('');
+const pattern = ref('');
+const drawerTitle = ref('');
+const selectedApplication = ref()
 
-  const isAddSon = computed(() => {
-    return !treeItemKey.value.length;
-  });
+const isAddSon = computed(() => {
+  return !treeItemKey.value.length;
+});
 
-  const addMenuOptions = ref([
-    {
-      label: '添加顶级菜单',
-      key: 'home',
-      disabled: false,
-    },
-    {
-      label: '添加子菜单',
-      key: 'son',
-      disabled: isAddSon,
-    },
-  ]);
+const addMenuOptions = ref([
+  {
+    label: '添加顶级菜单',
+    key: 'home',
+    disabled: false,
+  },
+  {
+    label: '添加子菜单',
+    key: 'son',
+    disabled: isAddSon,
+  },
+]);
 
-  const formParams = reactive({
-    type: 1,
-    name: '',
-    subtitle: '',
-    path: '',
-    auth: '',
-    openType: 1,
-  });
+const formParams = reactive({
+  type: 1,
+  name: '',
+  path2: '',
+  openType: 1,
+  applicationId: 0,
+  component2: '',
+  sequence: '',
+  icon: '',
+});
 
-  function selectAddMenu(key: string) {
-    drawerTitle.value = key === 'home' ? '添加顶栏菜单' : `添加子菜单：${treeItemTitle.value}`;
-    openCreateDrawer();
-  }
+const handleApplicationUpdateValue = (app: any) => {
+  selectedApplication.value = app.id
+  loadMenus()
+}
+const handleMenuApplicationUpdateValue = (app: any) => {
+  selectedApplication.value = app.id
+}
 
-  function openCreateDrawer() {
-    const { openDrawer } = createDrawerRef.value;
-    openDrawer();
-  }
+function selectAddMenu(key: string) {
+  drawerTitle.value = key === 'home' ? '添加顶栏菜单' : `添加子菜单：${treeItemTitle.value}`;
+  openCreateDrawer();
+}
 
-  function selectedTree(keys) {
-    if (keys.length) {
-      const treeItem = getTreeItem(unref(treeData), keys[0]);
-      treeItemKey.value = keys;
-      treeItemTitle.value = treeItem.name;
-      Object.assign(formParams, treeItem);
-      isEditMenu.value = true;
-    } else {
-      isEditMenu.value = false;
-      treeItemKey.value = [];
-      treeItemTitle.value = '';
-    }
-  }
+function openCreateDrawer() {
+  const {openDrawer} = createDrawerRef.value;
+  openDrawer();
+}
 
-  function handleDel() {
-    dialog.info({
-      title: '提示',
-      content: `您确定想删除此权限吗?`,
-      positiveText: '确定',
-      negativeText: '取消',
-      onPositiveClick: () => {
-        message.success('删除成功');
-      },
-      onNegativeClick: () => {
-        message.error('已取消');
-      },
-    });
-  }
-
-  function handleReset() {
-    const treeItem = getTreeItem(unref(treeData), treeItemKey.value[0]);
+function selectedTree(keys) {
+  if (keys.length) {
+    const treeItem = getTreeItem(unref(treeData), keys[0]);
+    treeItemKey.value = keys;
+    treeItemTitle.value = treeItem.name;
+    treeItem.sequence = '' + treeItem.sequence
     Object.assign(formParams, treeItem);
+    isEditMenu.value = true;
+  } else {
+    isEditMenu.value = false;
+    treeItemKey.value = [];
+    treeItemTitle.value = '';
   }
+}
 
-  function formSubmit() {
-    formRef.value.validate((errors: boolean) => {
-      if (!errors) {
-        message.error('抱歉，您没有该权限');
-      } else {
-        message.error('请填写完整信息');
-      }
-    });
-  }
-
-  function packHandle() {
-    if (expandedKeys.value.length) {
-      expandedKeys.value = [];
-    } else {
-      expandedKeys.value = unref(treeData).map((item: any) => item.id as string) as [];
-    }
-  }
-
-  onMounted(async () => {
-    const data = await getRoutes({});
-    console.log(data)
-    const keys = data.records.map((item) => item.id);
-    console.log(keys)
-    Object.assign(formParams, keys);
-    treeData.value = data.records;
-    loading.value = false;
+function handleDel() {
+  dialog.info({
+    title: '提示',
+    content: `您确定想删除此权限吗?`,
+    positiveText: '确定',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      message.success('删除成功');
+    },
+    onNegativeClick: () => {
+      message.error('已取消');
+    },
   });
+}
 
-  function onExpandedKeys(keys) {
-    expandedKeys.value = keys;
+function handleReset() {
+  const treeItem = getTreeItem(unref(treeData), treeItemKey.value[0]);
+  Object.assign(formParams, treeItem);
+}
+
+function formSubmit() {
+  formRef.value.validate((errors: boolean) => {
+    if (!errors) {
+      message.error('抱歉，您没有该权限');
+    } else {
+      message.error('请填写完整信息');
+    }
+  });
+}
+
+function packHandle() {
+  if (expandedKeys.value.length) {
+    expandedKeys.value = [];
+  } else {
+    expandedKeys.value = unref(treeData).map((item: any) => item.id as string) as [];
   }
+}
+
+async function loadMenus() {
+  const data = await fetchMenus({applicationId: selectedApplication.value});
+  const keys = data.map((item: any) => item.id);
+  Object.assign(formParams, keys);
+  treeData.value = data;
+  loading.value = false;
+}
+
+onMounted(async () => {
+
+  // await loadMenus();
+
+});
+
+function onExpandedKeys(keys) {
+  expandedKeys.value = keys;
+}
 </script>
