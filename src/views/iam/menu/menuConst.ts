@@ -12,7 +12,7 @@ export const ROUTE_TYPE_DICT = {
 }
 
 export const menuTypes = [
-    {key: 1, label: '侧边栏菜单'},
-    {key: 2, label: '内部页面'},
-    {key: 3, label: '页面隐藏路由'},
+    {value: 1, label: '侧边栏菜单'},
+    {value: 2, label: '内部页面'},
+    {value: 3, label: '页面隐藏路由'},
 ]
