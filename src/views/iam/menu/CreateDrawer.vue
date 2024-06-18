@@ -3,7 +3,7 @@
     <n-drawer-content :title="title" closable>
       <n-form
         :model="formParams"
-        :rules="rules"
+        :rules="MenuFormRules"
         ref="formRef"
         label-placement="left"
         :label-width="100"
@@ -53,25 +53,14 @@
 </template>
 
 <script lang="ts">
+
   import { defineComponent, reactive, ref, toRefs } from 'vue';
   import { useMessage } from 'naive-ui';
   import ApplicationSelect from "@/views/iam/menu/ApplicationSelect.vue";
   import {createMenu, updateMenu} from "@/api/iam/menu-api";
-  import {MenuCommand} from "@/views/iam/menu/menu";
+  import {MenuCommand, MenuFormRules} from "@/views/iam/menu/menu";
   import {menuTypes} from "@/views/iam/menu/menuConst";
 
-  const rules = {
-    label: {
-      required: true,
-      message: '请输入标题',
-      trigger: 'blur',
-    },
-    path: {
-      required: true,
-      message: '请输入路径',
-      trigger: 'blur',
-    },
-  };
   export default defineComponent({
     name: 'CreateDrawer',
     components: {ApplicationSelect},
@@ -149,7 +138,7 @@
       return {
         ...toRefs(state),
         formRef,
-        rules,
+        MenuFormRules,
         menuTypes,
         handleMenuApplicationUpdateValue,
         formSubmit,

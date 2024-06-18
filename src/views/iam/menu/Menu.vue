@@ -52,18 +52,17 @@
               </template>
               <template v-else>
                 <n-tree
-                    block-line
-                    cascade
-                    checkable
-                    :virtual-scroll="true"
-                    :pattern="pattern"
-                    :data="treeData"
-                    key-field="id"
-                    label-field="name"
-                    :expandedKeys="expandedKeys"
-                    style="max-height: 650px; overflow: hidden"
-                    @update:selected-keys="selectedTree"
-                    @update:expanded-keys="onExpandedKeys"
+                  block-line
+                  :virtual-scroll="true"
+                  :pattern="pattern"
+                  :data="treeData"
+                  key-field="id"
+                  label-field="name"
+                  :expandedKeys="expandedKeys"
+                  style="max-height: 650px; overflow: hidden"
+                  @update:selected-keys="selectedTree"
+                  @update:expanded-keys="onExpandedKeys"
+                  :render-suffix="renderNodeSuffix"
                 />
               </template>
             </div>
@@ -86,12 +85,21 @@
         </n-card>
       </n-gi>
     </n-grid>
-    <CreateDrawer @handle-success="loadMenus" ref="createDrawerRef" :title="drawerTitle"/>
+
+    <CreateDrawer
+      width="800"
+      @handle-success="loadMenus"
+      ref="createDrawerRef"
+      :title="drawerTitle"/>
+
   </div>
 </template>
+
 <script lang="tsx" setup>
+
+import {CashOutline as CashIcon, Add} from '@vicons/ionicons5'
 import {computed, onMounted, ref, unref} from 'vue';
-import {useDialog, useMessage} from 'naive-ui';
+import {TreeOption, useDialog, useMessage} from 'naive-ui';
 import {AlignLeftOutlined, DownOutlined, FormOutlined, SearchOutlined} from '@vicons/antd';
 import {fetchMenus} from '@/api/iam/menu-api';
 import {getTreeItem} from '@/utils';
@@ -99,17 +107,16 @@ import CreateDrawer from './CreateDrawer.vue';
 import ApplicationSelect from "@/views/iam/menu/ApplicationSelect.vue";
 import MenuEditForm from "@/views/iam/menu/MenuEditForm.vue";
 import {MenuCommand} from "@/views/iam/menu/menu";
-
+import TreeNodeAction from "@/views/iam/menu/TreeNodeAction.vue";
 
 const createDrawerRef = ref();
 const message = useMessage();
 const dialog = useDialog();
 
 let treeItemKey = ref([]);
-
 let expandedKeys = ref([]);
 
-const treeData = ref([]);
+const treeData = ref([] as Array<any>);
 
 const loading = ref(true);
 const isEditMenu = ref(false);
@@ -196,28 +203,6 @@ function handleDel() {
   });
 }
 
-// function handleReset() {
-//   const treeItem = getTreeItem(unref(treeData), treeItemKey.value[0]);
-//   Object.assign(formParams, treeItem);
-// }
-//
-// function formSubmit() {
-//   formRef.value.validate(async (errors: boolean) => {
-//     if (!errors) {
-//       try {
-//         await updateMenu(formParams)
-//         message.success('保存成功');
-//         await loadMenus()
-//       } catch (e) {
-//         console.log(e)
-//         message.success('保存失败');
-//       }
-//     } else {
-//       message.error('请填写完整信息');
-//     }
-//   });
-// }
-
 function packHandle() {
   if (expandedKeys.value.length) {
     expandedKeys.value = [];
@@ -230,6 +215,14 @@ async function loadMenus() {
   loading.value = true;
   treeData.value = await fetchMenus({applicationId: selectedApplication.value});
   setTimeout(() => loading.value = false, 300)
+}
+
+
+function renderNodeSuffix({option}: { option: TreeOption }) {
+  console.log(option)
+  return (
+    <TreeNodeAction/>
+  )
 }
 
 onMounted(async () => {
