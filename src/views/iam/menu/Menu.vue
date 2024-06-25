@@ -4,7 +4,10 @@
     <!--      <n-card :bordered="false" title="菜单管理">-->
     <!--      </n-card>-->
     <!--    </div>-->
-    <n-grid class="mt-4" cols="1 s:1 m:1 l:3 xl:3 2xl:3" responsive="screen" :x-gap="12">
+    <n-grid class="mt-4"
+            cols="1 s:1 m:1 l:3 xl:3 2xl:3"
+            responsive="screen"
+            :x-gap="12">
       <n-gi span="1">
         <n-card :segmented="{ content: true }" :bordered="false" size="small">
           <template #header>
@@ -52,64 +55,59 @@
               </template>
               <template v-else>
                 <n-tree
-                  block-line
-                  :virtual-scroll="true"
-                  :pattern="pattern"
-                  :data="treeData"
-                  key-field="id"
-                  label-field="name"
-                  :expandedKeys="expandedKeys"
-                  style="max-height: 650px; overflow: hidden"
-                  @update:selected-keys="selectedTree"
-                  @update:expanded-keys="onExpandedKeys"
-                  :render-suffix="renderNodeSuffix"
+                    block-line
+                    :virtual-scroll="true"
+                    :pattern="pattern"
+                    :data="treeData"
+                    key-field="id"
+                    label-field="name"
+                    :expandedKeys="expandedKeys"
+                    style="max-height: 650px; overflow: hidden"
+                    @update:selected-keys="selectedTree"
+                    @update:expanded-keys="onExpandedKeys"
+                    :render-suffix="renderNodeSuffix"
                 />
               </template>
             </div>
           </div>
         </n-card>
       </n-gi>
-      <n-gi span="2">
+      <n-gi span="1">
         <n-card :segmented="{ content: true }" :bordered="false" size="small">
           <template #header>
             <n-space>
               <n-icon size="18">
                 <FormOutlined/>
               </n-icon>
-              <span>编辑菜单{{ treeItemTitle ? `：${treeItemTitle}` : '' }}</span>
+              <span>{{ operate }}{{ treeItemTitle ? `：${treeItemTitle}` : '' }}</span>
             </n-space>
           </template>
-          <menu-edit-form v-if="isEditMenu"
-                          :menu="selectedMenu"
-                          @handle-success="loadMenus"/>
+
+          <MenuEditForm v-if="isEditMenu"
+                        :menu="selectedMenu"
+                        @handle-success="loadMenus"/>
         </n-card>
       </n-gi>
     </n-grid>
 
-    <CreateDrawer
-      width="800"
-      @handle-success="loadMenus"
-      ref="createDrawerRef"
-      :title="drawerTitle"/>
-
+    <MenuCreateForm @handle-success="loadMenus" ref="menuCreateFormRef" :title="drawerTitle"/>
   </div>
 </template>
 
 <script lang="tsx" setup>
 
-import {CashOutline as CashIcon, Add} from '@vicons/ionicons5'
 import {computed, onMounted, ref, unref} from 'vue';
 import {TreeOption, useDialog, useMessage} from 'naive-ui';
 import {AlignLeftOutlined, DownOutlined, FormOutlined, SearchOutlined} from '@vicons/antd';
 import {fetchMenus} from '@/api/iam/menu-api';
 import {getTreeItem} from '@/utils';
-import CreateDrawer from './CreateDrawer.vue';
-import ApplicationSelect from "@/views/iam/menu/ApplicationSelect.vue";
+import MenuCreateForm from './MenuCreateForm.vue';
 import MenuEditForm from "@/views/iam/menu/MenuEditForm.vue";
+import ApplicationSelect from "@/views/iam/menu/ApplicationSelect.vue";
 import {MenuCommand} from "@/views/iam/menu/menu";
 import TreeNodeAction from "@/views/iam/menu/TreeNodeAction.vue";
 
-const createDrawerRef = ref();
+const menuCreateFormRef = ref();
 const message = useMessage();
 const dialog = useDialog();
 
@@ -122,6 +120,7 @@ const loading = ref(true);
 const isEditMenu = ref(false);
 const treeItemTitle = ref('');
 const pattern = ref('');
+const operate = ref('');
 const drawerTitle = ref('');
 const selectedApplication = ref()
 const selectedMenu = ref<MenuCommand>({
@@ -170,23 +169,49 @@ function selectAddMenu(key: string) {
 }
 
 function openCreateDrawer() {
-  const {openDrawer} = createDrawerRef.value;
+  const {openDrawer} = menuCreateFormRef.value;
   openDrawer();
 }
 
 function selectedTree(keys) {
+  console.log('keys', keys)
   if (keys.length) {
     const treeItem = getTreeItem(unref(treeData), keys[0]);
     treeItemKey.value = keys;
     treeItemTitle.value = treeItem.name;
     selectedMenu.value = treeItem
     isEditMenu.value = true;
+    operate.value = '编辑菜单'
   } else {
     isEditMenu.value = false;
     treeItemKey.value = [];
     treeItemTitle.value = '';
   }
 }
+
+function addChildNode(parentNode: MenuCommand) {
+  console.log('parent node', parentNode)
+  operate.value = '添加子菜单'
+  isEditMenu.value = true;
+  treeItemKey.value = [];
+  treeItemTitle.value = parentNode.name;
+  selectedMenu.value = {
+    applicationId: parentNode.applicationId,
+    code: "",
+    component: "",
+    component2: "",
+    hideChildren: false,
+    icon: "",
+    name: "",
+    path: parentNode.path,
+    path2: parentNode.path2,
+    pid: parentNode.id,
+    sequence: 0,
+    status: 1,
+    type: 0
+  } as MenuCommand
+}
+
 
 function handleDel() {
   dialog.info({
@@ -219,9 +244,8 @@ async function loadMenus() {
 
 
 function renderNodeSuffix({option}: { option: TreeOption }) {
-  console.log(option)
   return (
-    <TreeNodeAction/>
+      <TreeNodeAction node={option} onAddChildNode={addChildNode}/>
   )
 }
 

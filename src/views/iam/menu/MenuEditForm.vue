@@ -21,7 +21,7 @@
     <n-form-item label="类型" path="type">
       <n-radio-group @update:value="(s) => formParams.type = s" v-model:value="formParams.type" name="type">
         <n-space>
-          <n-radio v-for="option in menuTypes"
+          <n-radio v-for="option in MenuTypes"
                    :key="option.value"
                    :value="option.value">{{ option.label }}
           </n-radio>
@@ -47,14 +47,15 @@
     </n-form-item>
   </n-form>
 </template>
+
 <script setup lang="tsx">
 
 import ApplicationSelect from "@/views/iam/menu/ApplicationSelect.vue";
 import {useMessage} from "naive-ui";
-import {reactive, ref, toRefs, watch} from "vue";
-import {updateMenu} from "@/api/iam/menu-api";
+import {reactive, ref, watch} from "vue";
+import {createMenu, updateMenu} from "@/api/iam/menu-api";
 import {MenuCommand, MenuFormRules} from "@/views/iam/menu/menu";
-import {menuTypes} from "@/views/iam/menu/menuConst";
+import {MenuTypes} from "@/views/iam/menu/menuConst";
 
 const handleSuccessEvent = 'handleSuccess';
 
@@ -67,7 +68,7 @@ const props = defineProps({
   },
 });
 
-const formParams = reactive<MenuCommand>({
+const defaultValueRef = () => reactive<MenuCommand>({
   applicationId: 0,
   code: "",
   component: "",
@@ -80,13 +81,19 @@ const formParams = reactive<MenuCommand>({
   path2: "",
   pid: 0,
   sequence: 0,
-  status: 0,
+  status: 1,
   type: 0
 });
 
+let formParams = defaultValueRef();
+
 
 watch(() => props.menu, (newValue) => {
+  console.log('old', formParams)
+  console.log('new', newValue)
+  formParams = defaultValueRef();
   Object.assign(formParams, newValue)
+  console.log('formParams', formParams)
 }, {immediate: true});
 
 const subLoading = ref(false);
@@ -106,12 +113,16 @@ function formSubmit() {
   formRef.value.validate(async (errors: boolean) => {
     if (!errors) {
       try {
-        await updateMenu(formParams)
+        if (!formParams.id || formParams.id <= 0) {
+          delete formParams.id
+          await createMenu(formParams)
+        } else {
+          await updateMenu(formParams)
+        }
         message.success('保存成功');
         emit(handleSuccessEvent)
       } catch (e) {
         console.log(e)
-        message.success('保存失败');
       }
     } else {
       message.error('请填写完整信息');

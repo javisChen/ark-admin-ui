@@ -14,19 +14,20 @@ export default defineComponent({
       type: Object
     }
   },
-  setup() {
+  setup(props, {emit}) {
 
     const state = reactive({
-      type: 1,
-      typeTitle: '基本设置',
+      node: props.node
     });
 
-    function addChildNode(node) {
-      console.log('add node', node)
+    function addChildNode() {
+      console.log('add node', state.node)
+      emit('add-child-node', state.node);
     }
 
-    function removeNode(node) {
-      console.log('remove node', node)
+    function removeNode() {
+      console.log('remove node', state.node)
+      emit('remove-node', state.node);
     }
 
     return {

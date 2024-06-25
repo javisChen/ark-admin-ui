@@ -11,7 +11,7 @@ export const ROUTE_TYPE_DICT = {
     3: '页面隐藏路由'
 }
 
-export const menuTypes = [
+export const MenuTypes = [
     {value: 1, label: '侧边栏菜单'},
     {value: 2, label: '内部页面'},
     {value: 3, label: '页面隐藏路由'},
